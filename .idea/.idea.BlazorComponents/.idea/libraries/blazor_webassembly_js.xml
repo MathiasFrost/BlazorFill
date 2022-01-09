@@ -1,0 +1,9 @@
+﻿<component name="libraryTable">
+  <library name="blazor.webassembly.js" type="javaScript">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/BlazorComponents/bin/Debug/net6.0/wwwroot/_framework/blazor.webassembly.js" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

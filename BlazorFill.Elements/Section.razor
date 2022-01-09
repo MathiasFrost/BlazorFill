@@ -1,0 +1,17 @@
+﻿<section style="width: @Width; margin: auto">
+	<h1>@Title</h1>
+	@ChildContent
+</section>
+
+@code {
+
+	[Parameter]
+	public RenderFragment? ChildContent { get; set; }
+	
+	[Parameter]
+	public string Title { get; set; } = "";
+
+	[Parameter]
+	public string Width { get; set; } = "0";
+
+}
