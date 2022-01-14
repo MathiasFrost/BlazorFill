@@ -3,10 +3,8 @@ using JetBrains.Annotations;
 
 namespace BlazorFill.Components.DatePicker;
 
-public static class DateHelper
+internal static class DateHelper
 {
-    private static readonly string[] Months = { "January" };
-
     public static IEnumerable<string> GetWeekdayPrefixes()
     {
         var res = new List<string>();
@@ -21,7 +19,7 @@ public static class DateHelper
         return res;
     }
 
-    public static DateCell GetDate(DateTime reference, int i)
+    public static DateCell GetDate(DateTime reference, int i, DateTime? date)
     {
         var startOfMonth = new DateTime(reference.Year, reference.Month, 1);
         var dayOfWeek = (int)startOfMonth.DayOfWeek;
@@ -32,11 +30,22 @@ public static class DateHelper
         var daysInLastMonth = DateTime.DaysInMonth(lastMonth.Year, lastMonth.Month);
 
         var daysInMonth = DateTime.DaysInMonth(reference.Year, reference.Month);
+
+        var selected = "";
+        var today = "";
+
+        if (i > 0 && i <= daysInMonth)
+        {
+            var thisDate = new DateTime(reference.Year, reference.Month, i);
+            selected = thisDate.Equals(date) ? CssClasses.Selected : "";
+            today = thisDate.Equals(DateTime.Today) ? CssClasses.Today : "";
+        }
+
         if (i < 1) i += daysInLastMonth;
         else if (i > daysInMonth) i -= daysInMonth;
-        else return new DateCell(i.ToString(), "valid");
+        else return new DateCell(i, CssClasses.Valid, today, selected);
 
-        return new DateCell(i.ToString(), "invalid");
+        return new DateCell(i, CssClasses.Invalid, today, selected);
     }
 }
 
@@ -47,4 +56,12 @@ public class DateRange
     public DateTime To { get; set; }
 }
 
-public sealed record DateCell(string Date, string Valid);
+internal sealed record DateCell(int Date, string Valid, string Today, string Selected);
+
+internal static class CssClasses
+{
+    public const string Valid = "valid";
+    public const string Invalid = "invalid";
+    public const string Selected = "selected";
+    public const string Today = "today";
+}

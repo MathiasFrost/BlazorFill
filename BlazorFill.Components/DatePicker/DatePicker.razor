@@ -7,23 +7,27 @@
 
 @inject IJSRuntime _jsRuntime
 
-<input class="input test" type="text" @ref="Input" @oninput="Callback" @onfocus="Callback" @onclick="Callback">
+<input class="input test" type="text" value="@_inputValue" @ref="Input" @oninput="Callback" @onfocus="Callback" @onclick="Callback">
 
 <div class="calendar @_fade" @ref="Calendar">
 	@if (_show)
 	{
 		<div class="calendar-body">
 			<div class="top-bar">
-				@ReferencePoint.Year &mdash; @ReferencePoint.ToString("M", CultureInfo.CurrentCulture)
+				<span>@ReferencePoint.Year &mdash; @ReferencePoint.ToString("M", CultureInfo.CurrentCulture)</span>
+				<div class="buttons">
+					<button type="button" @onclick="PrevMonth">&LeftArrow;</button>
+					<button type="button" @onclick="NextMonth">&RightArrow;</button>
+				</div>
 			</div>
 			<div class="container">
 				@foreach (var weekday in DateHelper.GetWeekdayPrefixes())
 				{
 					<div class="weekday">@weekday</div>
 				}
-				@foreach (var (date, valid) in _dateCells)
+				@foreach (var (date, valid, today, selected) in _dateCells)
 				{
-					<div class="cell @valid">@date</div>
+					<div class="cell @valid @today @selected" @onclick="() => SelectDate(date, valid)">@date</div>
 				}
 			</div>
 		</div>
@@ -36,32 +40,38 @@
 	public DatePickerOptions Options { get; set; } = new();
 
 	[Parameter]
-	public DateTime? DateTime { get; set; }
+	public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+	[Parameter]
+	public DateTime? Date { get; set; }
 
 		private const string FadeOut = "fade-out";
 		private const string FadeIn = "fade-in";
 
+	private string _inputValue = "";
 	private bool _show;
 	private string _fade = string.Empty;
 	private ElementReference Calendar { get; set; }
 	private ElementReference Input { get; set; }
-	private DateTime ReferencePoint { get; set; } = System.DateTime.Now;
+	private DateTime ReferencePoint { get; set; } = DateTime.Now;
 	private IList<DateCell> _dateCells = new List<DateCell>();
 
 	protected override Task OnInitializedAsync()
 	{
-		UpdateDateCells();
+		UpdateState();
 		return Task.CompletedTask;
 	}
 
-	private void UpdateDateCells()
-	{
-		for (var i = 0; i < 42; i++)
-			_dateCells.Add(DateHelper.GetDate(ReferencePoint, i));
-	}
-
 	/// <summary>oninput</summary>
-	private async Task Callback(ChangeEventArgs obj) { }
+	private async Task Callback(ChangeEventArgs obj)
+	{
+		if (obj.Value is not string value) return;
+		var valid = DateTime.TryParse(value, out var date);
+		if (!valid) return;
+		Date = date;
+		UpdateState();
+		await OnChange.InvokeAsync(new ChangeEventArgs { Value = Date }).ConfigureAwait(false);
+	}
 
 	/// <summary>onfocus</summary>
 	private async Task Callback(FocusEventArgs obj)
@@ -110,10 +120,38 @@
 	/// <summary>when fade-out has ended</summary>
 	private Task OnEndedCallback(TransitionEventArgs args)
 	{
+		if (_show) return Task.CompletedTask;
 		_show = false;
 		_fade = string.Empty;
 		StateHasChanged();
 		return Task.CompletedTask;
+	}
+
+	private void NextMonth()
+	{
+		ReferencePoint = ReferencePoint.AddMonths(1);
+		UpdateState();
+	}
+
+	private void PrevMonth()
+	{
+		ReferencePoint = ReferencePoint.AddMonths(-1);
+		UpdateState();
+	}
+
+	private async Task SelectDate(int date, string valid)
+	{
+		if (valid.Equals(CssClasses.Invalid)) return;
+		Date = new DateTime(ReferencePoint.Year, ReferencePoint.Month, date);
+		UpdateState();
+		await OnChange.InvokeAsync(new ChangeEventArgs { Value = Date }).ConfigureAwait(false);
+	}
+
+	private void UpdateState()
+	{
+		if (Date.HasValue) _inputValue = Date.Value.ToString("d", CultureInfo.CurrentCulture);
+		_dateCells.Clear();
+		for (var i = 0; i < 42; i++) _dateCells.Add(DateHelper.GetDate(ReferencePoint, i, Date));
 	}
 
 }

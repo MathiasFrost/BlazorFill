@@ -34,7 +34,7 @@ public static class Window
     {
         // if _module is null here, this function was called before an event has been added
         if (_module == null) return;
-        
+
         Events.Remove(callback.GetHashCode());
 
         await _module.InvokeVoidAsync(JsEvents.RemoveEvent, nameof(HandleWindowClickCallback),

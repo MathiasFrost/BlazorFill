@@ -18,7 +18,7 @@
 
 .calendar {
     width: 16rem;
-    height: 17rem;
+    height: 15.5rem;
     position: relative;
     opacity: 0;
     transition-duration: 300ms;
@@ -42,9 +42,16 @@
 }
 
 .top-bar {
-    height: 20%;
+    display: flex;
+    justify-content: space-between;
+    height: 13%;
     background-color: #181818;
     padding: 0.2rem;
+}
+
+.buttons {
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 .container {
@@ -88,4 +95,12 @@
 .cell.invalid {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+.cell.today {
+    background-color: #3b3b3b;
+}
+
+.cell.selected {
+    background-color: #9156d0;
 }
