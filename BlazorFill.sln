@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorComponents", "BlazorComponents\BlazorComponents.csproj", "{F2E5282A-8CB4-4940-BE47-326907FE3E20}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorFill", "BlazorFill\BlazorFill.csproj", "{F2E5282A-8CB4-4940-BE47-326907FE3E20}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorFill.DOM", "BlazorFill.DOM\BlazorFill.DOM.csproj", "{B754967C-5649-4A11-983B-8F12A8E95C89}"
 EndProject
