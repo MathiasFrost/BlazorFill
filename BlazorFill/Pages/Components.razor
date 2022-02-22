@@ -1,17 +1,31 @@
 ﻿@using BlazorFill.Elements
 @using BlazorFill.Components.DatePicker
+@using BlazorFill.Components.Dropdown
 
 @page "/Components"
 
 <Section Width="70%" Title="Components">
-	<Row Gap="2rem">
-		<Column Width="50%">
-			<h3>DatePicker</h3>
-			<DatePicker></DatePicker>
-		</Column>
-	</Row>
+    <Row Gap="2rem">
+        <Column Width="50%">
+            <h3>DatePicker</h3>
+            <DatePicker/>
+            <h3>Dropdown</h3>
+            <Dropdown Model="_dropdownModel"/>
+        </Column>
+    </Row>
 </Section>
 
 @code {
+
+    private readonly IEnumerable<DropdownModel> _dropdownModel = new[]
+    {
+        new DropdownModel
+        {
+            Content = "This is something",
+            Html = false,
+            Click = () => Console.WriteLine("Test"),
+            Children = Enumerable.Empty<DropdownModel>()
+        }
+    };
 
 }
