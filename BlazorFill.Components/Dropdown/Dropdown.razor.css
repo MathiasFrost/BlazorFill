@@ -1,0 +1,17 @@
+ul {
+    width: fit-content;
+    list-style: none;
+}
+
+ul > li {
+    cursor: pointer;
+    user-select: none;
+    transition-property: background-color, color;
+    transition-duration: 300ms;
+    padding: 0.2rem 0.3rem;
+}
+
+ul > li:hover {
+    background-color: #3b3b3b;
+    color: #bbbbbb;
+}

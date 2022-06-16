@@ -1,8 +1,12 @@
 ﻿html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: hsl(0, 0%, 4%);
+}
+
+body {
     color: white;
+    background-color: hsl(0 0% 6% / 1);
     margin: 0;
+    height: 100vh;
 }
 
 #blazor-error-ui {

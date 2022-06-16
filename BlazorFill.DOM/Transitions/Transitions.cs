@@ -8,7 +8,7 @@ public static class Transitions
     /// <inheritdoc cref="Dom"/>
     private static IJSObjectReference? _module;
 
-    private const string Path = "./_content/BlazorFill.DOM/transitions.js";
+    private const string Path = "/_content/BlazorFill.DOM/transitions.js";
     private static readonly Dictionary<int, Func<TransitionEventArgs, Task>> Events = new();
 
     public static async Task AddTransitionEventsAsync(this IJSRuntime jsRuntime, ElementReference elementReference,
@@ -43,7 +43,7 @@ public static class Transitions
         _module ??= await jsRuntime.ImportModuleAsync(Path).ConfigureAwait(false);
         var added = Events.TryAdd(callback.GetHashCode(), callback);
         if (!added) return;
-
+        Console.WriteLine("Adding Transition Event");
         await _module.InvokeVoidAsync(once ? JsEvents.AddTransitionEventsOnce : JsEvents.AddTransitionEvents,
             nameof(HandleTransitionCallback), callback.GetHashCode(), elementReference, options).ConfigureAwait(false);
     }

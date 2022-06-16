@@ -1,11 +1,14 @@
-﻿@if (Model != null)
+﻿@using Microsoft.AspNetCore.Components.Web
+@if (Model != null)
 {
     <ul>
         @foreach (var model in Model)
         {
-            <li @onmouseover="() => Console.WriteLine(model.Content)">@model.Content</li>
+            <li @onclick="model.Click">
+                @model.Content
+            </li>
             <div>
-                
+
             </div>
         }
     </ul>

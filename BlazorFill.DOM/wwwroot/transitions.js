@@ -32,6 +32,7 @@ export function addTransitionEventsOnce(event, hashcode, el, options) {
  * @param {AddEventListenerOptions} listenerOptions
  * @returns void */
 function addEvents(event, hashcode, el, options, listenerOptions) {
+    console.log(`Adding Event: ${event}`);
     if (options.start) {
         el.addEventListener("transitionstart", args => dotNetTransitionEventAsync(args, event, hashcode, true),
             listenerOptions);

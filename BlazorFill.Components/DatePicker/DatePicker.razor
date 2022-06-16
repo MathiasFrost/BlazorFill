@@ -10,148 +10,149 @@
 <input class="input test" type="text" value="@_inputValue" @ref="Input" @oninput="Callback" @onfocus="Callback" @onclick="Callback">
 
 <div class="calendar @_fade" @ref="Calendar">
-	@if (_show)
-	{
-		<div class="calendar-body">
-			<div class="top-bar">
-				<span>@ReferencePoint.Year &mdash; @ReferencePoint.ToString("M", CultureInfo.CurrentCulture)</span>
-				<div class="buttons">
-					<button type="button" @onclick="PrevMonth">&LeftArrow;</button>
-					<button type="button" @onclick="NextMonth">&RightArrow;</button>
-				</div>
-			</div>
-			<div class="container">
-				@foreach (var weekday in DateHelper.GetWeekdayPrefixes())
-				{
-					<div class="weekday">@weekday</div>
-				}
-				@foreach (var (date, valid, today, selected) in _dateCells)
-				{
-					<div class="cell @valid @today @selected" @onclick="() => SelectDate(date, valid)">@date</div>
-				}
-			</div>
-		</div>
-	}
+    @if (_show)
+    {
+        <div class="calendar-body">
+            <div class="top-bar">
+                <span>@ReferencePoint.Year &mdash; @ReferencePoint.ToString("M", CultureInfo.CurrentCulture)</span>
+                <div class="buttons">
+                    <button type="button" @onclick="PrevMonth">&LeftArrow;</button>
+                    <button type="button" @onclick="NextMonth">&RightArrow;</button>
+                </div>
+            </div>
+            <div class="container">
+                @foreach (var weekday in DateHelper.GetWeekdayPrefixes())
+                {
+                    <div class="weekday">@weekday</div>
+                }
+                @foreach (var (date, valid, today, selected) in _dateCells)
+                {
+                    <div class="cell @valid @today @selected" @onclick="() => SelectDate(date, valid)">@date</div>
+                }
+            </div>
+        </div>
+    }
 </div>
 
 @code {
 
-	[Parameter]
-	public DatePickerOptions Options { get; set; } = new();
+    [Parameter]
+    public DatePickerOptions Options { get; set; } = new();
 
-	[Parameter]
-	public EventCallback<ChangeEventArgs> OnChange { get; set; }
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
-	[Parameter]
-	public DateTime? Date { get; set; }
+    [Parameter]
+    public DateTime? Date { get; set; }
 
-		private const string FadeOut = "fade-out";
-		private const string FadeIn = "fade-in";
+        private const string FadeOut = "fade-out";
+        private const string FadeIn = "fade-in";
 
-	private string _inputValue = "";
-	private bool _show;
-	private string _fade = string.Empty;
-	private ElementReference Calendar { get; set; }
-	private ElementReference Input { get; set; }
-	private DateTime ReferencePoint { get; set; } = DateTime.Now;
-	private IList<DateCell> _dateCells = new List<DateCell>();
+    private string _inputValue = "";
+    private bool _show;
+    private string _fade = string.Empty;
+    private ElementReference Calendar { get; set; }
+    private ElementReference Input { get; set; }
+    private DateTime ReferencePoint { get; set; } = DateTime.Now;
+    private IList<DateCell> _dateCells = new List<DateCell>();
 
-	protected override Task OnInitializedAsync()
-	{
-		UpdateState();
-		return Task.CompletedTask;
-	}
+    protected override Task OnInitializedAsync()
+    {
+        UpdateState();
+        return Task.CompletedTask;
+    }
 
-	/// <summary>oninput</summary>
-	private async Task Callback(ChangeEventArgs obj)
-	{
-		if (obj.Value is not string value) return;
-		var valid = DateTime.TryParse(value, out var date);
-		if (!valid) return;
-		Date = date;
-		UpdateState();
-		await OnChange.InvokeAsync(new ChangeEventArgs { Value = Date }).ConfigureAwait(false);
-	}
+    /// <summary>oninput</summary>
+    private async Task Callback(ChangeEventArgs obj)
+    {
+        if (obj.Value is not string value) return;
+        var valid = DateTime.TryParse(value, out var date);
+        if (!valid) return;
+        Date = date;
+        UpdateState();
+        await OnChange.InvokeAsync(new ChangeEventArgs { Value = Date }).ConfigureAwait(false);
+    }
 
-	/// <summary>onfocus</summary>
-	private async Task Callback(FocusEventArgs obj)
-	{
-		await ShowAsync().ConfigureAwait(false);
-	}
+    /// <summary>onfocus</summary>
+    private async Task Callback(FocusEventArgs obj)
+    {
+        await ShowAsync().ConfigureAwait(false);
+    }
 
-	/// <summary>onclick</summary>
-	private async Task Callback(MouseEventArgs obj)
-	{
-		await ShowAsync().ConfigureAwait(false);
-	}
+    /// <summary>onclick</summary>
+    private async Task Callback(MouseEventArgs obj)
+    {
+        await ShowAsync().ConfigureAwait(false);
+    }
 
-	/// <summary>show calendar body and add window click event</summary>
-	private async Task ShowAsync()
-	{
-		await _jsRuntime.AddOnWindowClickAsync(OutsideClickCallback).ConfigureAwait(false);
-		_show = true;
-		_fade = FadeIn;
-	}
+    /// <summary>show calendar body and add window click event</summary>
+    private async Task ShowAsync()
+    {
+        await _jsRuntime.AddOnWindowClickAsync(OutsideClickCallback).ConfigureAwait(false);
+        _show = true;
+        _fade = FadeIn;
+    }
 
-	/// <summary>clicking outside calendar</summary>
-	private async Task OutsideClickCallback(MouseEventArgs arg)
-	{
-		if (!_show) return;
+    /// <summary>clicking outside calendar</summary>
+    private async Task OutsideClickCallback(MouseEventArgs arg)
+    {
+        if (!_show) return;
 
-		var bounds = await _jsRuntime.GetBoundingClientRect(Input).ConfigureAwait(false);
+        var bounds = await _jsRuntime.GetBoundingClientRect(Input).ConfigureAwait(false);
 
-	// if we click inside input, do not hide
-		if (arg.ClientX > bounds.X && arg.ClientX < bounds.X + bounds.Width &&
-		    arg.ClientY > bounds.Y && arg.ClientY < bounds.Y + bounds.Height) return;
+    // if we click inside input, do not hide
+        if (arg.ClientX > bounds.X && arg.ClientX < bounds.X + bounds.Width &&
+            arg.ClientY > bounds.Y && arg.ClientY < bounds.Y + bounds.Height) return;
 
-	// if we click inside calendar, do not hide
-		bounds = await _jsRuntime.GetBoundingClientRect(Calendar);
-		if (arg.ClientX > bounds.X && arg.ClientX < bounds.X + bounds.Width &&
-		    arg.ClientY > bounds.Y && arg.ClientY < bounds.Y + bounds.Height) return;
+    // if we click inside calendar, do not hide
+        bounds = await _jsRuntime.GetBoundingClientRect(Calendar);
+        if (arg.ClientX > bounds.X && arg.ClientX < bounds.X + bounds.Width &&
+            arg.ClientY > bounds.Y && arg.ClientY < bounds.Y + bounds.Height) return;
 
-		await _jsRuntime.RemoveWindowClickEventAsync(OutsideClickCallback).ConfigureAwait(false);
+        await _jsRuntime.RemoveWindowClickEventAsync(OutsideClickCallback).ConfigureAwait(false);
 
-	// start fade-out
-		await _jsRuntime.AddTransitionEventsOnceAsync(Calendar, OnEndedCallback, new TransitionEventOptions { End = true }).ConfigureAwait(false);
-		_fade = FadeOut;
-		StateHasChanged();
-	}
+    // start fade-out
+        await _jsRuntime.AddTransitionEventsOnceAsync(Calendar, OnEndedCallback, new TransitionEventOptions { End = true }).ConfigureAwait(false);
+        _fade = FadeOut;
+        StateHasChanged();
+    }
 
-	/// <summary>when fade-out has ended</summary>
-	private Task OnEndedCallback(TransitionEventArgs args)
-	{
-		if (_show) return Task.CompletedTask;
-		_show = false;
-		_fade = string.Empty;
-		StateHasChanged();
-		return Task.CompletedTask;
-	}
+    /// <summary>when fade-out has ended</summary>
+    private Task OnEndedCallback(TransitionEventArgs args)
+    {
+        if (_show) return Task.CompletedTask;
+        _show = false;
+        Console.WriteLine(_show);
+        _fade = string.Empty;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
 
-	private void NextMonth()
-	{
-		ReferencePoint = ReferencePoint.AddMonths(1);
-		UpdateState();
-	}
+    private void NextMonth()
+    {
+        ReferencePoint = ReferencePoint.AddMonths(1);
+        UpdateState();
+    }
 
-	private void PrevMonth()
-	{
-		ReferencePoint = ReferencePoint.AddMonths(-1);
-		UpdateState();
-	}
+    private void PrevMonth()
+    {
+        ReferencePoint = ReferencePoint.AddMonths(-1);
+        UpdateState();
+    }
 
-	private async Task SelectDate(int date, string valid)
-	{
-		if (valid.Equals(CssClasses.Invalid)) return;
-		Date = new DateTime(ReferencePoint.Year, ReferencePoint.Month, date);
-		UpdateState();
-		await OnChange.InvokeAsync(new ChangeEventArgs { Value = Date }).ConfigureAwait(false);
-	}
+    private async Task SelectDate(int date, string valid)
+    {
+        if (valid.Equals(CssClasses.Invalid)) return;
+        Date = new DateTime(ReferencePoint.Year, ReferencePoint.Month, date);
+        UpdateState();
+        await OnChange.InvokeAsync(new ChangeEventArgs { Value = Date }).ConfigureAwait(false);
+    }
 
-	private void UpdateState()
-	{
-		if (Date.HasValue) _inputValue = Date.Value.ToString("d", CultureInfo.CurrentCulture);
-		_dateCells.Clear();
-		for (var i = 0; i < 42; i++) _dateCells.Add(DateHelper.GetDate(ReferencePoint, i, Date));
-	}
+    private void UpdateState()
+    {
+        if (Date.HasValue) _inputValue = Date.Value.ToString("d", CultureInfo.CurrentCulture);
+        _dateCells.Clear();
+        for (var i = 0; i < 42; i++) _dateCells.Add(DateHelper.GetDate(ReferencePoint, i, Date));
+    }
 
 }
